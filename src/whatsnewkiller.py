@@ -1,3 +1,9 @@
+
+# ------------------------------------------------------------------------------
+#  Copyright (c) 2026 Dimitri Kroon.
+#  SPDX-License-Identifier: GPL-3.0-or-later
+# ------------------------------------------------------------------------------
+
 import logging
 from logging.handlers import RotatingFileHandler
 import os
