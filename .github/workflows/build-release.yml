@@ -1,0 +1,143 @@
+name: Build and Release WhatsNewKiller
+
+on:
+  push:
+    # Trigger only when pushing tags that start with 'v.'
+    tags:
+      - v*
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (format: vMAJOR.MINOR.REVISION — e.g., v1.2.3)'
+        required: true
+        default: ''
+      release_name:
+        description: 'Release title (optional, defaults to tag)'
+        required: false
+        default: ''
+      target:
+        description: 'Git ref to build from (defaults to main)'
+        required: false
+        default: 'main'
+
+permissions:
+  contents: write
+
+env:
+  PYTHON_VERSION: '3.11'
+  BUILD_DIR: build
+
+jobs:
+  check_tag:
+    name: Check tag
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.validate_tag.outputs.TAG }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          # Always build from main as requested
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target || 'main' }}
+
+      - name: Validate tag format
+        id: validate_tag
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+          # Expecting tags like: v1.2.3 (v<MAJOR>.<MINOR>.<REVISION>)
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Tag '$TAG' does not match required format: vMAJOR.MINOR.REVISION"
+            exit 1
+          fi
+          echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
+
+  build_exe:
+    name: Build executable
+    needs: check_tag
+    runs-on: windows-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          # Always build from main as requested
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target || 'main' }}
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+
+      - name: Build executable
+        run: pyinstaller --onefile --noconsole --icon=src/wnk.ico --add-data=src/wnk.ico:. --version-file src/version.txt src/whatsnewkiller.py
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: exec-artifacts
+          path: dist/whatsnewkiller.exe
+          if-no-files-found: warn
+
+  build_installer:
+    needs: build_exe
+    runs-on: windows-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          # Always build from main as requested
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target || 'main' }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Compile Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        with:
+          path: setup.iss
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: installer-artifacts
+          path: Output/whatsnewkiller*.exe
+          if-no-files-found: warn
+
+  publish_release:
+    name: Create GitHub Release
+    needs: [check_tag, build_installer]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          # Always build from main as requested
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target || 'main' }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -R dist || true
+
+      - name: Create github release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create ${{ needs.check_tag.outputs.tag }} --generate-notes --fail-on-no-commits dist/**
