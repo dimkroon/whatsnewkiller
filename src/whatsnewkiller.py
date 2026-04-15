@@ -48,8 +48,6 @@ def run_service():
 if __name__ == '__main__':
     init_logging()
     _logger.info('### WhatsNewKiller %s', __version__)
-    run_gui()
-    run_service()
     if len(sys.argv) > 1 and sys.argv[1] == 'nogui':
         run_service()
     else:
