@@ -52,7 +52,7 @@ This mode is ideal for scheduled tasks or startup scripts.
 
 Download the latest version of WhatsNewKiller_xxx_setup.exe from 
 [GitHub releases](https://github.com/dimkroon/whatsnewkiller/releases)
-Run the installer and follow the direction on the screen. The installer runs 
+Run the installer and follow the directions on the screen. The installer runs 
 without admin privileges and installs WhatsNewKiller for the current user only. 
 
 During installation, you will be presented with the following options:
