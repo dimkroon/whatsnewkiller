@@ -3,7 +3,7 @@
 ; Non-commercial use only
 
 #define MyAppName "WhatsNewKiller"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Dim Kroon"
 #define MyAppURL "https://github.com/dimkroon/whatsnewkiller"
 #define MyAppExeName "whatsnewkiller.exe"
