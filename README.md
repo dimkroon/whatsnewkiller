@@ -25,12 +25,13 @@ WhatsnewKiller writes all actions it takes to a log file located in
 ## Usage
 The whole idea of WhatsNewKiller is to install and forget. After installation 
 with the default options, the killer will run automatically each time you log 
-on to your computer and at midnight, but it's perfectly possible to run it 
-manually as well.
+on to your computer and at midnight if the PC is switched on at that time. 
+There's usually no need to run it manually, but it's perfectly possible to do 
+so.
 
 ### GUI Mode (Default)
 
-By default, WhatsNewKiller launches with a simple uer interface when opened 
+By default, WhatsNewKiller launches with a simple user interface when opened 
 manually.
 - Click **"Run Killer"** to scan and update Extron config files.
 - The log window will display the actions taken and any applications found.
@@ -69,7 +70,9 @@ During installation, you will be presented with the following options:
 > Some use cases are not covered by either of these option. e.g. If you 
 > wake your computer from sleep or hibernation, no login will trigger 
 > WhatsNewKiller and the scheduled event at midnight won't run when the 
-> PC is in hibernation. 
+> PC is in hibernation. If the default configuration does not meet your
+> requirements, you can simply adjust the triggers in the Windows Task
+> Scheduler task to suit your specific situation.
 
 
 ### Manual installation
@@ -78,7 +81,7 @@ During installation, you will be presented with the following options:
   [GitHub releases](https://github.com/dimkroon/whatsnewkiller/releases)
 - Place the file in a location of your choice, e.g. 
   `%USERPROFILE%\AppData\Local\Programs\WhatsNewKiller`.
-- Open Windows taskscheduler and create a task to run WhatsNewKiller at user 
+- Open Windows Task Scheduler and create a task to run WhatsNewKiller at user 
   logon, and/or any other trigger that works for you. 
 - Ensure to append argument `nogui` when you define the action.
 
@@ -103,7 +106,7 @@ During installation, you will be presented with the following options:
 
 ## Issues
 The current version is solely based on my own experience with software from 
-Extron on my own computers. If you find a bug, have a problem, questing, or 
+Extron on my own computers. If you find a bug, have a problem, question, or 
 things just don't seem to work for you as well as could be expected, please 
 open an issue here at GitHub and provide a clear and detailed description of 
 the problem.
@@ -112,14 +115,15 @@ the problem.
 
 Although the sript runs on any recent version of Python-3 without the need 
 to build, a windows executable and installer can be created to support users 
-who don't have Python installed, or prefer a simple way to install and configure 
-the program.
+who don't have Python installed, or just prefer a simple way to install and 
+configure the program.
 
 ### Build a Windows executable
-This requires pyinstaller to be installed in your Python environment.
+This requires a current version of python3, and pyinstaller to be installed 
+in your Python environment.
 
 Download the source code, open a command prompt and navigate to the base 
-directory containing the source. Ensure you have python installed.
+directory containing the source.
 
 To create a standalone `.exe` using PyInstaller:
 
